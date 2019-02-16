@@ -1,31 +1,25 @@
 from gevent import monkey
 monkey.patch_all()
-# # from slackeventsapi import SlackEventAdapter
-# from slackclient import SlackClient
-# import os, time, re
-
-
-# Our app's Slack Event Adapter for receiving actions via the Events API
-# slack_signing_secret = "40377830407f9a5fcfd058809fa3c002"
-# slack_events_adapter = SlackEventAdapter(slack_signing_secret, "/slack/events")
-
-# # Create a SlackClient for your bot to use for Web API requests
-# slack_bot_token = "xoxb-535944217620-536325643269-rI4xXqf1CIrjO0BkG6xKjR
 import os
 import time
 import re
 from slackclient import SlackClient
 from stockx import stockx_main
+import ConfigParser
 
+#Configuration
+myconfig = ConfigParser.RawConfigParser()
+config_file_path = "config.txt"
+myconfig.read(myconfig)
 
 # instantiate Slack client
-slack_client = SlackClient('xoxb-104080775045-536731083507-FarGos8wqGfkgAM93SDb82qv')
+slack_client = SlackClient(myconfig.get('my-config', 'TOKEN'))
 # starterbot's user ID in Slack: value is assigned after the bot starts up
 starterbot_id = None
 
 # constants
 RTM_READ_DELAY = 1 # 1 second delay between reading from RTM
-EXAMPLE_COMMAND = "pricecheck"
+EXAMPLE_COMMAND = myconfig.get('my-config', 'COMMAND')
 MENTION_REGEX = "^<@(|[WU].+?)>(.*)"
 
 def parse_bot_commands(slack_events):
@@ -69,13 +63,6 @@ def handle_command(command, channel):
         else:
             sku = command.split(" ")[1]
             stockx_main(sku)
-
-    # # Sends the response back to the channel
-    # slack_client.api_call(
-    #     "chat.postMessage",
-    #     channel=channel,
-    #     text=response or default_response
-    # )
 
 if __name__ == "__main__":
     if slack_client.rtm_connect(with_team_state=False):
