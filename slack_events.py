@@ -1,13 +1,13 @@
+import ConfigParser
+from stockx import stockx_main
+from slackclient import SlackClient
+import re
+import time
+import os
 from gevent import monkey
 monkey.patch_all()
-import os
-import time
-import re
-from slackclient import SlackClient
-from stockx import stockx_main
-import ConfigParser
 
-#Configuration
+# Configuration
 myconfig = ConfigParser.RawConfigParser()
 config_file_path = "config.txt"
 myconfig.read(myconfig)
@@ -18,9 +18,10 @@ slack_client = SlackClient(myconfig.get('my-config', 'TOKEN'))
 starterbot_id = None
 
 # constants
-RTM_READ_DELAY = 1 # 1 second delay between reading from RTM
+RTM_READ_DELAY = 1  # 1 second delay between reading from RTM
 EXAMPLE_COMMAND = myconfig.get('my-config', 'COMMAND')
 MENTION_REGEX = "^<@(|[WU].+?)>(.*)"
+
 
 def parse_bot_commands(slack_events):
     """
@@ -29,11 +30,12 @@ def parse_bot_commands(slack_events):
         If its not found, then this function returns None, None.
     """
     for event in slack_events:
-        if event["type"] == "message" and not "subtype" in event:
+        if event["type"] == "message" and "subtype" not in event:
             user_id, message = parse_direct_mention(event["text"])
             if user_id == starterbot_id:
                 return message, event["channel"]
     return None, None
+
 
 def parse_direct_mention(message_text):
     """
@@ -41,15 +43,22 @@ def parse_direct_mention(message_text):
         and returns the user ID which was mentioned. If there is no direct mention, returns None
     """
     matches = re.search(MENTION_REGEX, message_text)
-    # the first group contains the username, the second group contains the remaining message
-    return (matches.group(1), matches.group(2).strip()) if matches else (None, None)
+    # the first group contains the username, the second group contains the
+    # remaining message
+    return (
+        matches.group(1),
+        matches.group(2).strip()) if matches else (
+        None,
+        None)
+
 
 def handle_command(command, channel):
     """
         Executes bot command if the command is known
     """
     # Default response is help text for the user
-    default_response = "Not sure what you mean. Try *{}*.".format(EXAMPLE_COMMAND)
+    default_response = "Not sure what you mean. Try *{}*.".format(
+        EXAMPLE_COMMAND)
 
     # Finds and executes the given command, filling in response
     response = None
@@ -63,6 +72,7 @@ def handle_command(command, channel):
         else:
             sku = command.split(" ")[1]
             stockx_main(sku)
+
 
 if __name__ == "__main__":
     if slack_client.rtm_connect(with_team_state=False):
