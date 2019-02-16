@@ -1,0 +1,11 @@
+
+Webhook URL
+https://hooks.slack.com/services/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
+
+
+OAuth Access Token
+xoxp-104080775045-103925593747-534886996992-738fae2255e7eaeba0a240f224a33f3e
+
+
+Bot User OAuth Access Token
+xoxb-104080775045-536731083507-FarGos8wqGfkgAM93SDb82qv
